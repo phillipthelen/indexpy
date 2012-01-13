@@ -46,6 +46,7 @@ class Index():
 			if post[-3:] == ".md":
 				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
+				contentstr = self.md.convert(f.read())
 				f.close()
 				channel = self.rssdom.getElementsByTagName('channel')[0]
 				itemelem = self.rssdom.createElement('item')
