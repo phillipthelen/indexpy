@@ -46,6 +46,7 @@ class Index():
 			if post[-3:] == ".md":
 				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
+				f.close()
 				channel = self.rssdom.getElementsByTagName('channel')[0]
 				itemelem = self.rssdom.createElement('item')
 				channel.appendChild(itemelem)
@@ -69,7 +70,7 @@ class Index():
 				contentstr = self.md.convert(f.read())
 				descriptionstr = self.rssdom.createTextNode(contentstr)
 				descriptionelem.appendChild(descriptionstr)
-				f.close()
+				
 
 	def loadConfig(self):
 		name = self.basepath + "config.cfg"
@@ -94,8 +95,8 @@ class Index():
 				itemstr = self.config.get("TEMPLATE", "listitem")
 				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
-				postlist += ("\n" + itemstr.format(post=title, link=post[:-3]))
 				f.close()
+				postlist += ("\n" + itemstr.format(post=title, link=post[:-3]))
 		return liststr.format(posts=postlist)
 
 	def getPost(self, post):
