@@ -14,13 +14,14 @@ cgitb.enable()
 class Index():
 
 	def __init__(self):
+		basefile = os.path.realpath(__file__)
+		self.basepath = os.path.dirname(basefile) + "/"
 		self.loadConfig()
-		self.bloginfo = dict(self.config.items("INFORMATION"))
 		self.md = markdown.Markdown(output_format=self.config.get("TEMPLATE", "format"))
 		self.form = cgi.FieldStorage()
 		print "Content-type: text/html"
 		if self.form.getvalue("rss") != None:
-			template = open(self.config.get("TEMPLATE", "rssfile"))
+			template = open(self.basepath + self.config.get("TEMPLATE", "rssfile"))
 			self.rssdom = parse(template);
 
 			self.createRSS()
@@ -28,7 +29,7 @@ class Index():
 			print
 			print self.rssdom.toxml().format(**self.bloginfo)
 		else:
-			template = open(self.config.get("TEMPLATE", "indexfile"))
+			template = open(self.basepath + self.config.get("TEMPLATE", "indexfile"))
 			if self.form.getvalue("post") != None:
 				content = self.getPost(self.form.getvalue("post"))
 			else:
@@ -40,10 +41,10 @@ class Index():
 			print templatestr.format(**self.bloginfo)
 
 	def createRSS(self):
-		posts = sorted(os.listdir("content"), reverse=True)
+		posts = sorted(os.listdir(self.basepath + "content"), reverse=True)
 		for post in posts:
 			if post[-3:] == ".md":
-				f = open("content/" + post)
+				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
 				channel = self.rssdom.getElementsByTagName('channel')[0]
 				itemelem = self.rssdom.createElement('item')
@@ -71,33 +72,34 @@ class Index():
 				f.close()
 
 	def loadConfig(self):
-		self.config=ConfigParser.ConfigParser()
-		name = "config.cfg"
+		name = self.basepath + "config.cfg"
 		if os.path.isfile(name):
+			self.config=ConfigParser.ConfigParser()
 			# Config exists and gets opened
 			configfile= open(name)
 			self.config.readfp(configfile)
 			self.config.read(configfile)
 			configfile.close()
-
+			self.bloginfo = dict(self.config.items("INFORMATION"))
 		else:
 			print "Missing configfile"
+			sys.exit()
 
 	def listArticles(self):
-		posts = sorted(os.listdir("content"), reverse=True)
+		posts = sorted(os.listdir(self.basepath + "content"), reverse=True)
 		postlist = ""
 		liststr = self.config.get("TEMPLATE", "listblock")
 		for post in posts:
 			if post[-3:] == ".md":
 				itemstr = self.config.get("TEMPLATE", "listitem")
-				f = open("content/" + post)
+				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
 				postlist += ("\n" + itemstr.format(post=title, link=post[:-3]))
 				f.close()
 		return liststr.format(posts=postlist)
 
 	def getPost(self, post):
-		postfile = "content/{0}.md".format(post)
+		postfile = self.basepath + "content/{0}.md".format(post)
 		validation = self.validateFile(postfile)
 		if validation != None:
 			return validation
