@@ -46,7 +46,10 @@ class Index():
 			if post[-3:] == ".md":
 				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
-				contentstr = self.md.convert(f.read())
+				if (self.config.get("RSS", "fulltext")) != "0":
+					contentstr = self.md.convert(f.read())
+				else:
+					contentstr = title
 				f.close()
 				channel = self.rssdom.getElementsByTagName('channel')[0]
 				itemelem = self.rssdom.createElement('item')
@@ -68,10 +71,6 @@ class Index():
 				authorelem.appendChild(authorstr)
 				descriptionelem = self.rssdom.createElement('description')
 				itemelem.appendChild(descriptionelem)
-				if (self.config.get("RSS", "fulltext")) != "0":
-					contentstr = self.md.convert(f.read())
-				else:
-					contentstr = title
 				descriptionstr = self.rssdom.createTextNode(contentstr)
 				descriptionelem.appendChild(descriptionstr)
 
