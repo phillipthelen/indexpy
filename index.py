@@ -21,7 +21,7 @@ class Index():
 		self.form = cgi.FieldStorage()
 		print "Content-type: text/html"
 		if self.form.getvalue("rss") != None:
-			template = open(self.basepath + self.config.get("TEMPLATE", "rssfile"))
+			template = open(self.basepath + self.config.get("RSS", "template"))
 			self.rssdom = parse(template);
 
 			self.createRSS()
@@ -46,7 +46,10 @@ class Index():
 			if post[-3:] == ".md":
 				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
-				contentstr = self.md.convert(f.read())
+				if (self.config.get("RSS", "fulltext")) != "0":
+					contentstr = self.md.convert(f.read())
+				else:
+					contentstr = title
 				f.close()
 				channel = self.rssdom.getElementsByTagName('channel')[0]
 				itemelem = self.rssdom.createElement('item')
@@ -70,7 +73,7 @@ class Index():
 				itemelem.appendChild(descriptionelem)
 				descriptionstr = self.rssdom.createTextNode(contentstr)
 				descriptionelem.appendChild(descriptionstr)
-				
+
 
 	def loadConfig(self):
 		name = self.basepath + "config.cfg"
