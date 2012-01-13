@@ -30,9 +30,9 @@ class Index():
 		print templatestr.format(**self.bloginfo)
 				
 	def loadConfig(self):
-		self.config=ConfigParser.ConfigParser()
 		name = "config.cfg"
 		if os.path.isfile(name):
+			self.config=ConfigParser.ConfigParser()
 			# Config exists and gets opened
 			configfile= open(name)
 			self.config.readfp(configfile)
@@ -41,6 +41,7 @@ class Index():
 								
 		else:
 			print "Missing configfile"
+			sys.exit()
 
 	def listArticles(self):
 		posts = sorted(os.listdir("content"), reverse=True)
