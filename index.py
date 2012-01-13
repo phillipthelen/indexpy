@@ -13,8 +13,9 @@ cgitb.enable()
 class Index():
 
 	def __init__(self):
+		basefile = os.path.realpath(__file__)
+		self.basepath = os.path.dirname(basefile) + "/"
 		self.loadConfig()
-		self.bloginfo = dict(self.config.items("INFORMATION"))
 		template = open(self.config.get("TEMPLATE", "indexfile"))
 		self.md = markdown.Markdown(output_format=self.config.get("TEMPLATE", "format"))
 		self.form = cgi.FieldStorage()
@@ -30,7 +31,7 @@ class Index():
 		print templatestr.format(**self.bloginfo)
 				
 	def loadConfig(self):
-		name = "config.cfg"
+		name = self.basepath + "config.cfg"
 		if os.path.isfile(name):
 			self.config=ConfigParser.ConfigParser()
 			# Config exists and gets opened
@@ -38,26 +39,26 @@ class Index():
 			self.config.readfp(configfile)
 			self.config.read(configfile)
 			configfile.close()
-								
+			self.bloginfo = dict(self.config.items("INFORMATION"))
 		else:
 			print "Missing configfile"
 			sys.exit()
 
 	def listArticles(self):
-		posts = sorted(os.listdir("content"), reverse=True)
+		posts = sorted(os.listdir(self.basepath + "content"), reverse=True)
 		postlist = ""
 		liststr = self.config.get("TEMPLATE", "listblock")
 		for post in posts:
 			if post[-3:] == ".md":
 				itemstr = self.config.get("TEMPLATE", "listitem")
-				f = open("content/" + post)
+				f = open(self.basepath + "content/" + post)
 				title = f.readline().strip()
 				postlist += ("\n" + itemstr.format(post=title, link=post[:-3]))
 				f.close()
 		return liststr.format(posts=postlist)
 
 	def getPost(self, post):
-		postfile = "content/{0}.md".format(post)
+		postfile = self.basepath + "content/{0}.md".format(post)
 		validation = self.validateFile(postfile)
 		if validation != None:
 			return validation
