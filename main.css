@@ -1,0 +1,22 @@
+body {
+	background-color:#273543;
+	color:#D3D5D7;
+}
+
+h1 {
+	color:white;
+}
+
+a {
+	color:white;
+	text-decoration:none;
+}
+
+a:hover {
+	color:white;
+}
+
+a:visited {
+	color:white;
+	text-decoration:none;
+}
